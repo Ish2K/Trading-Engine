@@ -6,7 +6,10 @@ import numpy as np
 import pandas as pd
 from event import FillEvent, OrderEvent
 from performance import create_sharpe_ratio, create_drawdowns
+from dataclasses import dataclass,asdict,astuple,field
+from data import DataHandler
 
+@dataclass(order=True)
 class Portfolio(object):
     """
     The Portfolio class handles the positions and market
@@ -19,27 +22,36 @@ class Portfolio(object):
     time-index, as well as the percentage change in
     portfolio total across bars.
     """
-    def __init__(self, bars, events, start_date, initial_capital=100000.0):
-        """
-        Initialises the portfolio with bars and an event queue.
-        Also includes a starting datetime index and initial capital
-        (USD unless otherwise stated).
-        Parameters:
-        bars - The DataHandler object with current market data.
-        events - The Event Queue object.
-        start_date - The start date (bar) of the portfolio.
-        initial_capital - The starting capital in USD.
-        """
-        self.bars = bars
-        self.events = events
+    
+    """
+    Initialises the portfolio with bars and an event queue.
+    Also includes a starting datetime index and initial capital
+    (USD unless otherwise stated).
+    Parameters:
+    bars - The DataHandler object with current market data.
+    events - The Event Queue object.
+    start_date - The start date (bar) of the portfolio.
+    initial_capital - The starting capital in USD.
+    """
+        
+    bars : DataHandler
+    events : queue.Queue
+    start_date :datetime.datetime
+    initial_capital : float= 100000.0
+    
+    symbol_list : list = []
+    all_positions :list = []
+    current_positions :dict = {}
+    all_holdings :list = []
+    current_holdings :dict = {}
+    
+    def __post_init__(self):
         self.symbol_list = self.bars.symbol_list
-        self.start_date = start_date
-        self.initial_capital = initial_capital
         self.all_positions = self.construct_all_positions()
         self.current_positions = dict( (k,v) for k, v in [(s, 0) for s in self.symbol_list] )
         self.all_holdings = self.construct_all_holdings()
-        self.current_holdings = self.construct_current_holdings()
-    
+        self.current_holdings =  self.construct_current_holdings()
+        
     def construct_all_positions(self):
         """
         Constructs the positions list using the start_date

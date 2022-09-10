@@ -17,7 +17,7 @@ class MarketEvent(Event):
     Handles the event of receiving a new market update with
     corresponding bars.
     """
-    type : str = 'MARKET'
+    symbol:str
 
 @dataclass(order = True)
 class SignalEvent(Event):
@@ -37,7 +37,6 @@ class SignalEvent(Event):
     strength - An adjustment factor "suggestion" used to scale
     quantity at the portfolio level. Useful for pairs strategies.
     """
-    type : str
     strategy_id : int 
     symbol : str
     datetime : datetime.datetime
@@ -63,8 +62,6 @@ class OrderEvent(Event):
     quantity - Non-negative integer for quantity.
     direction - 'BUY' or 'SELL' for long or short.
     """
-    
-    type : str 
     symbol : str 
     order_type : str 
     quantity : int
@@ -93,15 +90,14 @@ class FillEvent(Event):
     direction - The direction of fill ('BUY' or 'SELL')
     fill_cost - The holdings value in dollars.
     commission - An optional commission sent from IB.
-    """
-    type :str 
+    """ 
     timeindex : int 
     symbol : str
     exchange : str
     quantity : int 
     direction : str
     fill_cost : float
-    commission : float = None
+    commission : float
     # Calculate commission
     
     def __post_init__(self):
